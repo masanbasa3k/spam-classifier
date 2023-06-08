@@ -1,3 +1,5 @@
+import install_requirements
+
 import string
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
@@ -12,28 +14,28 @@ def text_process(mess):
     nopunc = ''.join(nopunc)
     return ' '.join([word for word in nopunc.split() if word.lower() not in STOPWORDS])
 
-# Eğitilmiş modeli yükle
+# Load the trained model
 loaded_model = joblib.load('spam_classifier.joblib')
 
-# CountVectorizer ve TfidfTransformer'ı yükle
+# Load CountVectorizer and TfidfTransformer
 vect = joblib.load('count_vectorizer.joblib')
 tfidf_transformer = joblib.load('tfidf_transformer.joblib')
 
-# Kullanıcıdan metin girişi al
+# Get input text from the user
 text = input("Enter a text: ")
 
-# Metni ön işleme yap
+# Preprocess the text
 clean_text = text_process(text)
 
-# Metni vektöre dönüştür
+# Convert the text to a vector
 text_dtm = vect.transform([clean_text])
 
-# Metni tf-idf değerlerine dönüştür
+# Convert the text to tf-idf values
 text_tfidf = tfidf_transformer.transform(text_dtm)
 
-# Tahmini gerçekleştir
+# Perform the prediction
 prediction = loaded_model.predict(text_tfidf)
 
-# Tahmin sonucunu yazdır
+# Print the prediction result
 label = "spam" if prediction == 1 else "ham"
-print(f"predict: {label}")
+print(f"Prediction: {label}")

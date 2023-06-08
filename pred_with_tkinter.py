@@ -1,11 +1,12 @@
 import install_requirements
 
+import tkinter as tk
+from tkinter import messagebox
+import joblib
 import string
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.naive_bayes import MultinomialNB
-import joblib
 
 def text_process(mess):
     STOPWORDS = stopwords.words('english')
@@ -21,21 +22,38 @@ loaded_model = joblib.load('spam_classifier.joblib')
 vect = joblib.load('count_vectorizer.joblib')
 tfidf_transformer = joblib.load('tfidf_transformer.joblib')
 
-# Get input text from the user
-text = input("Enter a text: ")
+# Function to handle button click event
+def classify_text():
+    # Get the input text from the entry widget
+    text = text_entry.get("1.0", "end-1c")
+    
+    # Preprocess the text
+    clean_text = text_process(text)
+    
+    # Transform the text using CountVectorizer and TfidfTransformer
+    text_dtm = vect.transform([clean_text])
+    text_tfidf = tfidf_transformer.transform(text_dtm)
+    
+    # Perform the prediction
+    prediction = loaded_model.predict(text_tfidf)
+    
+    # Determine the label
+    label = "spam" if prediction == 1 else "ham"
+    
+    # Show a message box with the prediction result
+    messagebox.showinfo("Prediction", f"The text is classified as: {label}")
 
-# Preprocess the text
-clean_text = text_process(text)
+# Create the main window
+window = tk.Tk()
+window.title("Spam Classifier")
 
-# Convert the text to a vector
-text_dtm = vect.transform([clean_text])
+# Create a text entry widget
+text_entry = tk.Text(window, height=10, width=30)
+text_entry.pack()
 
-# Convert the text to tf-idf values
-text_tfidf = tfidf_transformer.transform(text_dtm)
+# Create a button widget
+classify_button = tk.Button(window, text="Classify", command=classify_text)
+classify_button.pack()
 
-# Perform the prediction
-prediction = loaded_model.predict(text_tfidf)
-
-# Print the prediction result
-label = "spam" if prediction == 1 else "ham"
-print(f"Prediction: {label}")
+# Start the Tkinter event loop
+window.mainloop()
