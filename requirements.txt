@@ -1,0 +1,6 @@
+nltk
+pandas
+joblib
+sklearn
+nltk
+tkinter
